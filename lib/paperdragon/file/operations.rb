@@ -17,7 +17,13 @@ module Paperdragon
       # Upload file, delete old file if there is one.
       def upload!(job, old_uid, new_uid, metadata)
         puts "........................STORE  (process): #{uid}"
-        job.store(path: uid, :headers => {'x-amz-acl' => 'public-read', "Content-Type" => "image/jpeg"})
+        df_uid = job.store(path: uid, :headers => {'x-amz-acl' => 'public-read', "Content-Type" => "image/jpeg"})
+
+        # Dragonfly's filename disambiguation may change the uid
+        if df_uid != uid
+          uid = df_uid
+          metadata[:uid] = uid
+        end
 
         if new_uid # new uid means delete old one.
           puts "........................DELETE (reprocess): #{old_uid}"
@@ -73,3 +79,4 @@ module Paperdragon
     end
   end
 end
+
